@@ -42,20 +42,20 @@
 
 #include <stdint.h>
 #include "device_headers/stm32c562xx.h"
+#include "device_drivers/gpio.h"
 
 int main(void)
 {
-	// EN Clock to GPIOA
+	// Enable GPIOA clock
 	RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
 
-	// Set up GPIOA registers MODER
-	GPIOA->MODER &= ~(3 << 4);
-	GPIOA->MODER |= 1 << 4;
+	// Initialization
+	GPIO_Init(GPIOA, GPIO_PIN_3, GPIO_MODE_OUTPUT,
+			GPIO_OTYPE_PUSHPULL, GPIO_OUTPUT_SPEED_LOW, GPIO_PULL_NONE);
 
-	// Turn on the LED BSRR
-	GPIOA->BSRR |= 1 << 2;
+	// Control / Operations
+	GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_HIGH);
+	GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_LOW);
+	GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_HIGH);
 
-	GPIOA->BSRR |= 1 << (2+16);
-
-	GPIOA->BSRR |= 1 << 2;
 }

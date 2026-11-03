@@ -1,3 +1,4 @@
+"./Src/device_derivers/gpio.o"
 "./Src/main.o"
 "./Src/syscalls.o"
 "./Src/sysmem.o"

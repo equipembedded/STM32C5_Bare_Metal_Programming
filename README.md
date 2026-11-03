@@ -1,4 +1,4 @@
-# STM32C5 Bare-Metal Blinky No Driver (Lesson 01)
+# STM32C5 Bare-Metal GPIO Driver (Lesson 02)
 
 All code written by Equip Embedded in this repository is licensed under the MIT License.
 
@@ -6,26 +6,53 @@ STM32CubeIDE-generated files (startup code, linker scripts, HAL drivers) and any
 
 ## Overview
 
-This repository contains **bare-metal STM32C5 code** for blinking an LED on a custom STM32C562 breakout board.
+This lesson builds a **GPIO driver from scratch** for the STM32C5 — no HAL, no libraries, just registers.
 
-All programming is done **directly via registers**, without HAL or external libraries.
+If you've used `HAL_GPIO_Init()` before and never quite understood what it does, this is the part HAL hides from you. Every line in `GPIO_Init()` and `GPIO_WritePin()` writes directly to a hardware register, so you can read the driver top to bottom and see exactly how a pin gets configured and driven.
+
+The driver is written to be understood: comments explain *why* each register write happens, not just *what* it does.
 
 ## Features
 
-* Register-level GPIO control
+* Register-level GPIO configuration and output control
 * No HAL, no libraries
-* Example using PA2 (adjust to your board's LED pin)
+* `GPIO_Init()` — configures mode, output type, output speed, and pull-up/pull-down
+* `GPIO_WritePin()` — drives a pin high or low using `BSRR`
+* Clear-then-set bit-masking pattern, explained once and reused throughout
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `gpio.h` | Public interface: pin macros, configuration enums, function prototypes |
+| `gpio.c` | Implementation: direct register writes for `GPIO_Init()` and `GPIO_WritePin()` |
 
 ## Code Overview
 
-* Enable GPIOA clock via `RCC_AHB2ENR`
-* Configure PA2 as output via `GPIOA_MODER`
-* Set/reset PA2 via `GPIOA_BSRR`
+`GPIO_Init()` configures a single pin by writing to four registers:
+
+* `MODER` — mode (input / output / alternate / analog), 2 bits per pin
+* `OTYPER` — output type (push-pull / open-drain), 1 bit per pin
+* `OSPEEDR` — output speed (low / medium / high / very high), 2 bits per pin
+* `PUPDR` — pull-up / pull-down (none / up / down), 2 bits per pin
+
+`GPIO_WritePin()` uses `BSRR` to set or reset a pin:
+
+* Lower half (bits 0–15) sets the pin high
+* Upper half (bits 16–31) resets the pin low
+
+`BSRR` is used instead of `ODR` because it is atomic — the set/reset happens in a single hardware operation and cannot be interrupted halfway through by an interrupt.
 
 ## Board
 
 * STM32C562 (ARM Cortex-M33) on a custom breakout board
 * STLINK-V3MINIE debugger
+
+## Prerequisites
+
+* Familiarity with C and basic bitwise operations (`&`, `|`, `~`, `<<`)
+* The STM32C5 reference manual handy for register definitions
+* No prior bare-metal experience required — the comments walk through each register write
 
 ## Disclaimer
 
