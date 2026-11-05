@@ -69,10 +69,10 @@ void GPIO_Init(GPIO_TypeDef * port,
 void GPIO_WritePin(GPIO_TypeDef * port, uint8_t pin, GPIO_Level_et value) {
 	if (value == 1U) {
 		// Set pin HIGH: write 1 to lower half of BSRR (bits 0-15)
-		port->BSRR |= (1UL << pin);
+		port->BSRR = (1UL << pin);
 	} else {
 		// Set pin LOW: write 1 to upper half of BSRR (bits 16-31)
-		port->BSRR |= (1UL << (pin + 16));
+		port->BSRR = (1UL << (pin + 16));
 	}
 }
 
